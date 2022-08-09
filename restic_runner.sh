@@ -168,7 +168,7 @@ function backup {
         echo
         echo "Checking Backup Integrity."
         #Check to ensure the backup worked (on small backups, this should not use too many class B transactions)
-        restic check --with-cache --verbose=20
+        restic check --with-cache --no-lock --verbose=20
         [[ $? = 0 ]] && error=false || error=true
         [[ $error = false ]] && restic_check_status="Restic-Check: No Issues." || restic_check_status="Restic-Check: Issue Found."
         echo "$restic_check_status"
