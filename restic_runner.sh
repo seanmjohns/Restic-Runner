@@ -1,5 +1,10 @@
 #!/bin/bash
 
+#To create a new restic repository on backblaze, run
+# restic -r b2:B2_BUCKET_NAME init
+# (replacing B2_BUCKET_NAME with your bucket of course)
+# (see https://restic.readthedocs.io/en/latest/030_preparing_a_new_repo.html?highlight=backblaze#backblaze-b2)
+
 #Place the following cron entries in your crontab:
 # m h   dom mon dow   command
 #0 21 * * * sudo -u sean /home/sean/.restic_runner/restic_runner.sh --force
@@ -199,6 +204,21 @@ function backup {
 
 }
 
+function pruneAll {
+
+    echo
+    echo "Pruning ALL backups... "
+    restic forget --verbose=20 --keep-last 0 \
+            --keep-daily 0 \
+            --keep-weekly 0 \
+            --keep-monthly 0 \
+            --keep-yearly 0 \
+            --limit-upload 500 \
+            --prune
+
+
+}
+
 function main {
 
     force=0
@@ -211,8 +231,18 @@ function main {
                 force=1
                 ;;
 
+            "-p" | "--prune")
+                #Prune ALL backups
+                pruneAll
+                exit
+                ;;
+
             "-h")
-                echo "help"
+                echo "- help -"
+                echo "See the top of this script for setup instructions"
+                echo "Options:"
+                echo "  -f | --force : backup even if there hasnt been a backup in the last 24 hours"
+                echo "  -p | --prune : remove ALL backups from the backblaze restic repository"
                 ;;
 
             *)
